@@ -1,0 +1,10 @@
+[package]
+name = "Codec"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+hex = "0.4.2"
+image = "0.24"
+minifb = "0.23.0"
+lz4 = "1.8"
