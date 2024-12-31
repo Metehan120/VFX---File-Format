@@ -7,6 +7,7 @@ VFX, VFX Görsel Dosya Biçimidir, amacı PNG'nin yerini doldurmak olmayıp hobi
 1- Relases kısmından en son sürümü seçiniz
 2- MSI dosyasını indirin
 3- Kurulumu başlatmak için çifte tıklayın
+4- Tebrikler artık masaüstünden başlatabilirsiniz
 
 # VFX Nasıl Kaynaktan Yüklenir:
 1- Rust yükleyiniz: [rust](https://www.rust-lang.org/),
