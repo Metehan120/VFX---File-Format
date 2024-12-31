@@ -125,7 +125,6 @@ fn main() {
                 ).unwrap_or_else(|e| panic!("Pencere açılamadı: {}", e));
 
                 while window.is_open() && !window.is_key_down(minifb::Key::Escape) {
-                    // Buffer'ı doğru şekilde pencereye aktarıyoruz
                     window.update_with_buffer(&buffer, width as usize, height as usize).unwrap();
                 }
             }
