@@ -99,7 +99,7 @@ fn main() {
                 println!("Dönüştürme başarılı! '{}' kaydedildi.", file_name.trim());
             }
             "open" => {
-                println!("VFX dosyasının adını girin: ");
+                println!("VFX dosyasının adını ve konumunu girin: ");
                 let mut vfx_path = String::new();
                 stdin().read_line(&mut vfx_path).unwrap();
 
