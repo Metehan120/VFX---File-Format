@@ -113,6 +113,7 @@ fn main() {
                     }
                 }
 
+                // Pencere oluşturuluyor
                 let mut window = Window::new(
                     "Görsel Gösterici",
                     width as usize,
@@ -125,6 +126,7 @@ fn main() {
                 ).unwrap_or_else(|e| panic!("Pencere açılamadı: {}", e));
 
                 while window.is_open() && !window.is_key_down(minifb::Key::Escape) {
+                    // Buffer ayarlanıyor
                     window.update_with_buffer(&buffer, width as usize, height as usize).unwrap();
                 }
             }
