@@ -2,24 +2,28 @@ use std::io::{stdin, Write, Read};
 use std::fs::File;
 use image::{self, DynamicImage, GenericImageView, RgbaImage, Rgba};
 use minifb::{Window, WindowOptions};
-use lz4::block::{compress, decompress, CompressionMode};
+use zstd::stream::{Encoder, Decoder};
 
-fn encode_with_lz4(input_data: &[u8]) -> Vec<u8> {
+fn encode_with_zstd(input_data: &[u8]) -> Vec<u8> {
     println!("Sıkıştırma öncesi boyut: {}", input_data.len());
-    let compressed = compress(input_data, Some(CompressionMode::HIGHCOMPRESSION(8)), false)
-        .expect("Sıkıştırma hatası");
-    println!("Sıkıştırma sonrası boyut: {}", compressed.len());
-    compressed
+    let mut compressed_data = Vec::new();
+    let mut encoder = Encoder::new(&mut compressed_data, 8).expect("Sıkıştırıcı başlatılamadı");
+    encoder.write_all(input_data).expect("Sıkıştırma hatası");
+    encoder.finish().expect("Sıkıştırıcı bitirme hatası");
+    println!("Sıkıştırma sonrası boyut: {}", compressed_data.len());
+    compressed_data
 }
 
-fn decode_with_lz4(compressed_data: &[u8]) -> Vec<u8> {
+fn decode_with_zstd(compressed_data: &[u8]) -> Vec<u8> {
     println!("Çözme işlemi başlatıldı. Sıkıştırılmış veri boyutu: {}", compressed_data.len());
-    let decompressed = decompress(compressed_data, Some(100 * 1024 * 1024))
-        .expect("Sıkıştırma çözülürken hata");
-    println!("Çözme sonrası veri boyutu: {}", decompressed.len());
-    decompressed
+    let mut decompressed_data = Vec::new();
+    let mut decoder = Decoder::new(compressed_data).expect("Çözücü başlatılamadı");
+    decoder.read_to_end(&mut decompressed_data).expect("Çözme hatası");
+    println!("Çözme sonrası veri boyutu: {}", decompressed_data.len());
+    decompressed_data
 }
 
+// Görseli Sıkıştırma
 fn encode(img: DynamicImage, file_name: &str) {
     let mut img_data = Vec::new();
     let (width, height) = img.dimensions();
@@ -34,18 +38,19 @@ fn encode(img: DynamicImage, file_name: &str) {
     let info = format!("\nWidth:{}\nHeight:{}\n", width, height);
     img_data.extend_from_slice(info.as_bytes());
 
-    let compressed_data = encode_with_lz4(&img_data);
+    let compressed_data = encode_with_zstd(&img_data);
 
     let mut file = File::create(format!("{}.vfx", file_name.trim())).unwrap();
     file.write_all(&compressed_data).expect("Yazma hatası");
 }
 
+// Görseli Çözme
 fn decode(file_path: &str) -> DynamicImage {
     let mut file = File::open(format!("{}.vfx", file_path.trim())).unwrap();
     let mut compressed_data = Vec::new();
     file.read_to_end(&mut compressed_data).unwrap();
 
-    let raw_data = decode_with_lz4(&compressed_data);
+    let raw_data = decode_with_zstd(&compressed_data);
 
     let data_str = String::from_utf8_lossy(&raw_data);
     let width: u32 = data_str.lines()
@@ -72,8 +77,9 @@ fn decode(file_path: &str) -> DynamicImage {
     DynamicImage::ImageRgba8(img)
 }
 
+// Ana Döngü
 fn main() {
-    while true {
+    loop {
         println!("Ne yapmak istersiniz? (convert/open): ");
         let mut what_to_do = String::new();
         stdin().read_line(&mut what_to_do).unwrap();
@@ -101,7 +107,7 @@ fn main() {
                 println!("Çözme başarılı, görsel gösteriliyor...");
                 
                 let (width, height) = img.dimensions();
-                let rgba_image = img.to_rgba8(); // RGB'yi RGBA'ya çeviriyoruz.
+                let rgba_image = img.to_rgba8();
 
                 let mut buffer: Vec<u32> = Vec::with_capacity((width * height) as usize);
                 for y in 0..height {
@@ -113,7 +119,6 @@ fn main() {
                     }
                 }
 
-                // Pencere oluşturuluyor
                 let mut window = Window::new(
                     "Görsel Gösterici",
                     width as usize,
@@ -126,14 +131,12 @@ fn main() {
                 ).unwrap_or_else(|e| panic!("Pencere açılamadı: {}", e));
 
                 while window.is_open() && !window.is_key_down(minifb::Key::Escape) {
-                    // Buffer ayarlanıyor
                     window.update_with_buffer(&buffer, width as usize, height as usize).unwrap();
                 }
             }
             _ => {
-                println!("Geçersiz seçenek! Lütfen 'convert' veya 'open_image' girin.");
+                println!("Geçersiz seçenek! Lütfen 'convert' veya 'open' girin.");
             }
         }
     }
 }
-
