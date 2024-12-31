@@ -5,7 +5,7 @@
 # VFX - File-Format
 VFX, VFX Görsel Dosya Biçimidir, amacı PNG'nin yerini doldurmak olmayıp hobi Projesidir.
 
-# VFX Nasıl Yüklenir? (Bir süreliğine destek almayacak.)
+# VFX Nasıl Yüklenir?
 1- Relases kısmından en son sürümü seçiniz,
 2- MSI dosyasını indirin,
 3- Kurulumu başlatmak için çifte tıklayın,
