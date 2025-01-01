@@ -26,7 +26,7 @@ fn encode(img: DynamicImage, file_name: &str) {
     let mut img_data = Vec::new();
     let (width, height) = img.dimensions();
 
-    let signature = "0x56-0x46-0x58: 0x03"; 
+    let signature = "0x56-0x46-0x58: 0x03";
 
     for y in 0..height {
         for x in 0..width {
@@ -35,17 +35,17 @@ fn encode(img: DynamicImage, file_name: &str) {
         }
     }
 
-    let height_hex = hex::encode("Height: {}");
-    let width_hex = hex::encode("Width: {}");
+    let height_hex = hex::encode("Height");
+    let width_hex = hex::encode("Width");
 
-    let info = format!("\n{}:{}\n{}:{}\n{}", height_hex, height, width_hex, width, signature);
+    let info = format!("\n{}: {}\n{}: {}\n{}", height_hex, height, width_hex, width, signature);
     img_data.extend_from_slice(info.as_bytes());
 
     let compressed_data = encode_with_zstd(&img_data);
 
     let mut file = match File::create(format!("{}.vfx", file_name.trim())) {
         Ok(f) => f,
-        Err(e) => panic!("Error opening file: {}", e),
+        Err(e) => panic!("Error while creating file: {}", e),
     };
 
     if let Err(e) = file.write_all(&compressed_data) {
