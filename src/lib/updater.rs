@@ -1,4 +1,4 @@
-use std::io::{stdin, Write};
+use std::io::Write;
 use std::fs::File;
 use std::string;
 use image::{self, DynamicImage, GenericImageView};
@@ -26,6 +26,8 @@ fn encode(img: DynamicImage, file_name: &str) {
     let mut img_data = Vec::new();
     let (width, height) = img.dimensions();
 
+    let signature = "0x56-0x46-0x58: 0x01"; 
+
     for y in 0..height {
         for x in 0..width {
             let pixel = img.get_pixel(x, y).0;
@@ -33,11 +35,20 @@ fn encode(img: DynamicImage, file_name: &str) {
         }
     }
 
-    let info = format!("\nWidth:{}\nHeight:{}\n", width, height);
+    let height_hex = hex::encode("Height: {}");
+    let width_hex = hex::encode("Width: {}");
+
+    let info = format!("\n{}:{}\n{}:{}\n{}", height_hex, height, width_hex, width, signature);
     img_data.extend_from_slice(info.as_bytes());
 
     let compressed_data = encode_with_zstd(&img_data);
 
-    let mut file = File::create(format!("{}.vfx", file_name.trim())).unwrap();
-    file.write_all(&compressed_data).expect("Yazma hatası");
+    let mut file = match File::create(format!("{}.vfx", file_name.trim())) {
+        Ok(f) => f,
+        Err(e) => panic!("Dosya açılırken hata oluştu: {}", e),
+    };
+
+    if let Err(e) = file.write_all(&compressed_data) {
+        panic!("Yazma hatası: {}", e);
+    }
 }

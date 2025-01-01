@@ -21,10 +21,11 @@ fn encode_with_zstd(input_data: &[u8]) -> Vec<u8> {
     compressed_data
 }
 
-// Görseli Sıkıştırma
 fn encode(img: DynamicImage, file_name: &str) {
     let mut img_data = Vec::new();
     let (width, height) = img.dimensions();
+
+    let signature = "0x56-0x46-0x58: 0x01"; 
 
     for y in 0..height {
         for x in 0..width {
@@ -33,13 +34,22 @@ fn encode(img: DynamicImage, file_name: &str) {
         }
     }
 
-    let info = format!("\nWidth:{}\nHeight:{}\n", width, height);
+    let height_hex = hex::encode(format!("Height: {}", height));
+    let width_hex = hex::encode(format!("Width: {}", width));
+
+    let info = format!("\n{}\n{}\n{}", height_hex, width_hex, signature);
     img_data.extend_from_slice(info.as_bytes());
 
     let compressed_data = encode_with_zstd(&img_data);
 
-    let mut file = File::create(format!("{}.vfx", file_name.trim())).unwrap();
-    file.write_all(&compressed_data).expect("Yazma hatası");
+    let mut file = match File::create(format!("{}.vfx", file_name.trim())) {
+        Ok(f) => f,
+        Err(e) => panic!("Dosya açılırken hata oluştu: {}", e),
+    };
+
+    if let Err(e) = file.write_all(&compressed_data) {
+        panic!("Yazma hatası: {}", e);
+    }
 }
 
 fn update(file_path: &string::String) {
@@ -49,7 +59,8 @@ fn update(file_path: &string::String) {
 // Ana Döngü
 fn main() {
     loop {
-        println!("Ne yapmak istersiniz? (convert/open/update (dosya)): ");
+        println!("Versiyon: 3");
+        println!("Ne yapmak istersiniz? (convert/open/update (versiyon 1 içindir): ");
         let mut what_to_do = String::new();
         stdin().read_line(&mut what_to_do).unwrap();
 
@@ -113,7 +124,7 @@ fn main() {
             }
 
             _ => {
-                println!("Geçersiz seçenek! Lütfen 'convert' veya 'open' girin.");
+                println!("Geçersiz seçenek! Lütfen 'convert', 'open' veya 'update' girin.");
             }
         }
     }
