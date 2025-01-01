@@ -15,8 +15,8 @@ fn decode_with_zstd(compressed_data: &[u8]) -> Vec<u8> {
 pub fn decode(file_path: &str) -> DynamicImage {
     let mut file = File::open(format!("{}.vfx", file_path.trim())).unwrap();
     let mut compressed_data = Vec::new();
-    let height_hex = hex::encode("Height:");
-    let width_hex = hex::encode("Width:");
+    let height_hex = hex::encode("Height");
+    let width_hex: String = hex::encode("Width");
     file.read_to_end(&mut compressed_data).unwrap();
 
     let raw_data = decode_with_zstd(&compressed_data);

@@ -34,10 +34,10 @@ fn encode(img: DynamicImage, file_name: &str) {
         }
     }
 
-    let height_hex = hex::encode(format!("Height: {}", height));
-    let width_hex = hex::encode(format!("Width: {}", width));
+    let height_hex = hex::encode("Height");
+    let width_hex = hex::encode("Width");
 
-    let info = format!("\n{}\n{}\n{}", height_hex, width_hex, signature);
+    let info = format!("\n{}: {}\n{}: {}\n{}", height_hex, height, width_hex, width, signature);
     img_data.extend_from_slice(info.as_bytes());
 
     let compressed_data = encode_with_zstd(&img_data);
