@@ -25,7 +25,7 @@ fn encode(img: DynamicImage, file_name: &str) {
     let mut img_data = Vec::new();
     let (width, height) = img.dimensions();
 
-    let signature = "0x56-0x46-0x58: 0x01"; 
+    let signature = "0x56-0x46-0x58: 0x03"; 
 
     for y in 0..height {
         for x in 0..width {
