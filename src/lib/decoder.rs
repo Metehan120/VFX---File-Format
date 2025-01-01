@@ -4,11 +4,11 @@ use image::{self, DynamicImage, RgbaImage, Rgba};
 use zstd::stream::Decoder;
 
 fn decode_with_zstd(compressed_data: &[u8]) -> Vec<u8> {
-    println!("Çözme işlemi başlatıldı. Sıkıştırılmış veri boyutu: {}", compressed_data.len());
+    println!("Decompression started. Compressed data size: {}", compressed_data.len());
     let mut decompressed_data = Vec::new();
-    let mut decoder = Decoder::new(compressed_data).expect("Çözücü başlatılamadı");
-    decoder.read_to_end(&mut decompressed_data).expect("Çözme hatası");
-    println!("Çözme sonrası veri boyutu: {}", decompressed_data.len());
+    let mut decoder = Decoder::new(compressed_data).expect("Failed to initialize decoder");
+    decoder.read_to_end(&mut decompressed_data).expect("Decompression error");
+    println!("Size after decompression: {}", decompressed_data.len());
     decompressed_data
 }
 
@@ -32,10 +32,10 @@ pub fn decode(file_path: &str) -> DynamicImage {
         .find(|line| line.contains("0x56-0x46-0x58"))
         .and_then(|line| line.split(':').nth(1))
         .map(|s| s.trim().to_string())
-        .unwrap_or_else(|| panic!("Imza doğrulama hatası"));
+        .unwrap_or_else(|| panic!("Signature verification error"));
 
     if signature != "0x03" {
-        println!("Dosya versiyonu eskidir lütfen güncellemeyi düşününüz")
+        println!("The file version is old. Please consider updating.");
     }
 
     let img_data = &raw_data[..raw_data.len() - (width.to_string().len() + &width.to_string().len() + 16)];
@@ -50,7 +50,7 @@ pub fn decode(file_path: &str) -> DynamicImage {
     let img = RgbaImage::from_raw(width, height, img_pixels.into_iter()
         .flat_map(|p| p.0.to_vec())
         .collect())
-        .unwrap_or_else(|| panic!("Görsel oluşturulamadı."));
+        .unwrap_or_else(|| panic!("Failed to create image."));
 
     DynamicImage::ImageRgba8(img)
 }

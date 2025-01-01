@@ -4,10 +4,10 @@ use image::{self, DynamicImage, RgbaImage, Rgba};
 use lz4::block::decompress;
 
 fn decode_with_lz4(compressed_data: &[u8]) -> Vec<u8> {
-    println!("Çözme işlemi başlatıldı. Sıkıştırılmış veri boyutu: {}", compressed_data.len());
+    println!("Decompression started. Compressed data size: {}", compressed_data.len());
     let decompressed = decompress(compressed_data, Some(100 * 1024 * 1024))
-        .expect("Sıkıştırma çözülürken hata");
-    println!("Çözme sonrası veri boyutu: {}", decompressed.len());
+        .expect("Error during decompression");
+    println!("Size after decompression: {}", decompressed.len());
     decompressed
 }
 
@@ -38,7 +38,7 @@ pub fn decode(file_path: &str) -> DynamicImage {
     let img = RgbaImage::from_raw(width, height, img_pixels.into_iter()
         .flat_map(|p| p.0.to_vec())
         .collect())
-        .unwrap_or_else(|| panic!("Görsel oluşturulamadı."));
+        .unwrap_or_else(|| panic!("Failed to create image."));
 
     DynamicImage::ImageRgba8(img)
 }

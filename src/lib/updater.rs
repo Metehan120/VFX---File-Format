@@ -6,12 +6,12 @@ use zstd::stream::Encoder;
 use crate::lib::decoder_old;
 
 fn encode_with_zstd(input_data: &[u8]) -> Vec<u8> {
-    println!("Sıkıştırma öncesi boyut: {}", input_data.len());
+    println!("Size before compression: {}", input_data.len());
     let mut compressed_data = Vec::new();
-    let mut encoder = Encoder::new(&mut compressed_data, 11).expect("Sıkıştırıcı başlatılamadı");
-    encoder.write_all(input_data).expect("Sıkıştırma hatası");
-    encoder.finish().expect("Sıkıştırıcı bitirme hatası");
-    println!("Sıkıştırma sonrası boyut: {}", compressed_data.len());
+    let mut encoder = Encoder::new(&mut compressed_data, 11).expect("Failed to initialize encoder");
+    encoder.write_all(input_data).expect("Compression error");
+    encoder.finish().expect("Error finishing encoder");
+    println!("Size after compression: {}", compressed_data.len());
     compressed_data
 }
 
@@ -45,10 +45,10 @@ fn encode(img: DynamicImage, file_name: &str) {
 
     let mut file = match File::create(format!("{}.vfx", file_name.trim())) {
         Ok(f) => f,
-        Err(e) => panic!("Dosya açılırken hata oluştu: {}", e),
+        Err(e) => panic!("Error opening file: {}", e),
     };
 
     if let Err(e) = file.write_all(&compressed_data) {
-        panic!("Yazma hatası: {}", e);
+        panic!("Write error: {}", e);
     }
 }
