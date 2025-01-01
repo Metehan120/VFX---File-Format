@@ -1,27 +1,34 @@
-# ŞUANLIK VFX TAM ANLAMIYLA BİR DOSYA BİÇİMİ SAYILMAZ PNG, JPEG, JPG, WEBM, VB. BİÇİMLERİN ÇEVRİLMİŞ HALİDİR GELECKEKTE STANDALONE OLARAK İLERLEYEBİLİR
+# VFX ISN'T AN ACTUAL FILE FORMAT FOR NOW — IT'S A CONVERTED VERSION OF PNG, JPEG, JPG, WEBM, ETC. THE PROJECT MAY BECOME STANDALONE IN THE FUTURE
 
 # VFX: VISUAL FILE-FORMAT X
 
-# VFX - File-Format
-VFX, VFX Görsel Dosya Biçimidir, amacı PNG'nin yerini doldurmak olmayıp hobi Projesidir.
+## What is VFX?
+VFX is an image file format. This project is not intended to replace PNG or other existing formats. It's simply a hobby project.
 
-# VFX Nasıl Yüklenir?
-1- Relases kısmından en son sürümü seçiniz,
-2- MSI dosyasını indirin,
-3- Kurulumu başlatmak için çifte tıklayın,
-4- Tebrikler artık masaüstünden başlatabilirsiniz,
+## How to Install/Download VFX?
+1. Go to the **Releases** section and select the version you want.
+2. Download the **ZIP** file.
+3. Extract the file.
+4. Congrats! You're ready to go. 🎉
 
-# VFX Nasıl Kaynaktan Yüklenir:
-1- Rust yükleyiniz: [rust](https://www.rust-lang.org/),
-2- Cargo ile projeyi derleyebilirsiniz: **crago build**,
-Ek: Release olarak derleme: **cargo build --release**
+## How to Build VFX from Source:
+1. Download and install **Rust**: [rust](https://www.rust-lang.org/)
+2. Build with **cargo**: `cargo build`
+3. (Optional) Build as release: `cargo build --release`
 
-# VFX'nin avantajlar nelerdir:
-PNG, JPG, JPEG, WEBM, VB. Görsel Dosya biçimlerini doğrudan destekler.
-Boyutları çok büyük değildir **fakat png dışında çevrilen dosya boyutlar 1mb üzerini bulabilir**
+## Advantages of VFX:
+- VFX supports almost every image file format: **PNG**, **JPG**, **JPEG**, **WEBM**, etc.
+- The size of VFX files is generally small, but formats other than PNG can result in files larger than **1MB** (for a **100KB** original file) when converted to VFX.
 
-# Neden böyle bir Proje üzerinde Çalışyıorum?
-- Cevabı gayet basit, Hobi amaçlı.
+## Why am I working on this project?
+- It's simple: **It's a hobby project!**
 
-# Nasıl Dosyaları açabilirsiniz?
-- .exe Dosyasını çalıştırdıktan sonra **open** komudu ile dosyaları okutabilirsiniz (Uzantı desteği sonra eklenecektir)
+## How to Convert Images to VFX?
+1. Run the **.exe** file.
+2. Follow the on-screen instructions.
+3. Type `convert`.
+4. Enter the **directory** of the image file and provide a **name** for the output file.
+
+---
+
+*Thank you for checking out VFX! Enjoy experimenting with it.* 🚀
