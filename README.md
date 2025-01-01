@@ -1,6 +1,6 @@
 # ŞUANLIK VFX TAM ANLAMIYLA BİR DOSYA BİÇİMİ SAYILMAZ PNG, JPEG, JPG, WEBM, VB. BİÇİMLERİN ÇEVRİLMİŞ HALİDİR GELECKEKTE STANDALONE OLARAK İLERLEYEBİLİR
 
-# VFX: VIRTUAL FILE-FORMAT X
+# VFX: VISUAL FILE-FORMAT X
 
 # VFX - File-Format
 VFX, VFX Görsel Dosya Biçimidir, amacı PNG'nin yerini doldurmak olmayıp hobi Projesidir.
