@@ -1,4 +1,4 @@
-use std::{fmt::Error, io::Write};
+use std::{fmt::Error};
 use std::default::Default;
 use image::{self, DynamicImage, GenericImageView};
 use lib::{decoder, updater, encoder};
