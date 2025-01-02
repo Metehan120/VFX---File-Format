@@ -1,10 +1,14 @@
-use std::io::{stdin, Write};
+use std::{fmt::Error, io::Write};
+use std::default::Default;
 use std::fs::File;
 use std::string;
 use image::{self, DynamicImage, GenericImageView};
-use minifb::{Window, WindowOptions};
 use zstd::stream::Encoder;
 use lib::{decoder, updater};
+use eframe::egui;
+use tinyfiledialogs;
+use winapi;
+
 mod lib {
     pub mod decoder;
     pub mod decoder_old;
@@ -12,12 +16,10 @@ mod lib {
 }
 
 fn encode_with_zstd(input_data: &[u8]) -> Vec<u8> {
-    println!("Size before compression: {}", input_data.len());
     let mut compressed_data = Vec::new();
     let mut encoder = Encoder::new(&mut compressed_data, 11).expect("Failed to initialize compressor");
     encoder.write_all(input_data).expect("Compression error");
     encoder.finish().expect("Failed to finalize compressor");
-    println!("Size after compression: {}", compressed_data.len());
     compressed_data
 }
 
@@ -52,80 +54,80 @@ fn encode(img: DynamicImage, file_name: &str) {
     }
 }
 
-fn update(file_path: &string::String) {
-    updater::update(&file_path);
+fn main() -> Result<(), Error> {
+    unsafe { winapi::um::wincon::FreeConsole() };
+
+    let mut native_options = eframe::NativeOptions::default();
+    native_options.initial_window_size = Some(egui::vec2(500.0, 500.0));
+
+    eframe::run_native(
+        "VFX Editor (Version 3)",
+        native_options,
+        Box::new(|_cc| Box::<MyApp>::default()),
+    )
 }
 
-// Main Loop
-fn main() {
-    loop {
-        println!("Version: 3");
-        println!("What would you like to do? (convert/open/update (for version 1 only)):");
-        let mut what_to_do = String::new();
-        stdin().read_line(&mut what_to_do).unwrap();
+#[derive(Default)]
+struct MyApp {
+    file_name: string::String,
+    img: DynamicImage
+}
 
-        match what_to_do.trim() {
-            "convert" => {
-                println!("Enter the path of the image file:");
-                let mut img_path = String::new();
-                stdin().read_line(&mut img_path).unwrap();
-
-                println!("Enter the file name:");
-                let mut file_name = String::new();
-                stdin().read_line(&mut file_name).unwrap();
-
-                let img = image::open(img_path.trim()).unwrap();
-                encode(img, &file_name);
-                println!("Conversion successful! '{}' saved.", file_name.trim());
-            }
-            "open" => {
-                println!("Enter the name and path of the VFX file:");
-                let mut vfx_path = String::new();
-                stdin().read_line(&mut vfx_path).unwrap();
-
-                let img = decoder::decode(&vfx_path);
-                println!("Decoding successful, displaying the image...");
-
-                let (width, height) = img.dimensions();
-                let rgba_image = img.to_rgba8();
-
-                let mut buffer: Vec<u32> = Vec::with_capacity((width * height) as usize);
-                for y in 0..height {
-                    for x in 0..width {
-                        let pixel = rgba_image.get_pixel(x, y);
-                        let rgba = pixel.0;
-                        let color = (u32::from(rgba[0]) << 16) | (u32::from(rgba[1]) << 8) | u32::from(rgba[2]);
-                        buffer.push(color);
+impl eframe::App for MyApp {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        egui::CentralPanel::default().show(ctx, |ui| {
+            ui.horizontal(|ui| {
+                ui.label("File Name: (No need for VFX files)");
+                ui.text_edit_singleline(&mut self.file_name);
+            });
+            
+            ui.horizontal(|ui| {
+                if ui.button("Convert").clicked() {
+                    if let Some(path) = tinyfiledialogs::open_file_dialog("Open Image", "", None) {
+                        match image::open(&path) {
+                            Ok(img) => { 
+                                encode(img.clone(), &self.file_name);
+                                ui.label("File encoded successfully!");
+                            }
+                            Err(e) => {
+                                ui.label(format!("Failed to open image: {}", e));
+                            }
+                        }
                     }
                 }
 
-                let mut window = Window::new(
-                    "Image Viewer",
-                    width as usize,
-                    height as usize,
-                    WindowOptions {
-                        resize: false,
-                        scale: minifb::Scale::X1,
-                        ..WindowOptions::default()
-                    },
-                ).unwrap_or_else(|e| panic!("Failed to open window: {}", e));
-
-                while window.is_open() && !window.is_key_down(minifb::Key::Escape) {
-                    window.update_with_buffer(&buffer, width as usize, height as usize).unwrap();
+                if ui.button("Open").clicked() {
+                    if let Some(path) = tinyfiledialogs::open_file_dialog("Open Image", "", None) {
+                        self.img = decoder::decode(&path);
+                    }
                 }
-            }
-            "update" => {
-                println!("Enter the name and path of the VFX file:");
-                let mut vfx_path = String::new();
-                stdin().read_line(&mut vfx_path).unwrap();
 
-                update(&vfx_path);
-                println!("Update successful! '{}' updated.", vfx_path.trim());
-            }
+                if ui.button("Update (For Version 1)").clicked() {
+                    if let Some(path) = tinyfiledialogs::open_file_dialog("Open Image", "", None) {
+                        updater::update(&path);
+                    }
+                }
+            });
 
-            _ => {
-                println!("Invalid option! Please enter 'convert', 'open', or 'update'.");
+            ui.separator();
+
+            if self.img.dimensions() != (0, 0) {
+                let (width, height) = self.img.dimensions();
+                let available_size = ui.available_size();
+                let aspect_ratio = width as f32 / height as f32;
+                let display_size = if available_size.x / aspect_ratio <= available_size.y {
+                    [available_size.x, available_size.x / aspect_ratio]
+                } else {
+                    [available_size.y * aspect_ratio, available_size.y]
+                };
+
+                let color_image = egui::ColorImage::from_rgba_unmultiplied(
+                    [width as usize, height as usize],
+                    &self.img.to_rgba8(),
+                );
+                let texture_id = ctx.load_texture("image", color_image);
+                ui.image(&texture_id, display_size);
             }
-        }
+        });
     }
 }

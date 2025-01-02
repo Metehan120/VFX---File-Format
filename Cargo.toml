@@ -6,6 +6,8 @@ edition = "2021"
 [dependencies]
 hex = "0.4.2"
 image = "0.24"
-minifb = "0.23.0"
 zstd = "0.12"
 lz4 = "1.8"
+eframe = "0.18"
+tinyfiledialogs = "3.9.1"
+winapi = {version = "0.3", features = ["wincon", "winuser"]}

@@ -4,16 +4,14 @@ use image::{self, DynamicImage, RgbaImage, Rgba};
 use zstd::stream::Decoder;
 
 fn decode_with_zstd(compressed_data: &[u8]) -> Vec<u8> {
-    println!("Decompression started. Compressed data size: {}", compressed_data.len());
     let mut decompressed_data = Vec::new();
     let mut decoder = Decoder::new(compressed_data).expect("Failed to initialize decoder");
     decoder.read_to_end(&mut decompressed_data).expect("Decompression error");
-    println!("Size after decompression: {}", decompressed_data.len());
     decompressed_data
 }
 
 pub fn decode(file_path: &str) -> DynamicImage {
-    let mut file = File::open(format!("{}.vfx", file_path.trim())).unwrap();
+    let mut file = File::open(format!("{}", file_path.trim())).unwrap();
     let mut compressed_data = Vec::new();
     let height_hex = hex::encode("Height");
     let width_hex: String = hex::encode("Width");

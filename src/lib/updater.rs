@@ -6,12 +6,10 @@ use zstd::stream::Encoder;
 use crate::lib::decoder_old;
 
 fn encode_with_zstd(input_data: &[u8]) -> Vec<u8> {
-    println!("Size before compression: {}", input_data.len());
     let mut compressed_data = Vec::new();
     let mut encoder = Encoder::new(&mut compressed_data, 11).expect("Failed to initialize encoder");
     encoder.write_all(input_data).expect("Compression error");
     encoder.finish().expect("Error finishing encoder");
-    println!("Size after compression: {}", compressed_data.len());
     compressed_data
 }
 
